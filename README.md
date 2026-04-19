@@ -1,149 +1,149 @@
-# Datsun 280ZX Speeduino L28E ECU Swap
+# Datsun 280ZX Speeduino L28E - Retrofit ECU
 
-Complete technical documentation for retrofitting a Datsun 280ZX with a Speeduino-based engine control unit (ECU) driving a Nissan L28E engine.
+Documentación técnica completa para integrar una unidad de control del motor (ECU) basada en Speeduino en un Datsun 280ZX clásico con motor Nissan L28E.
 
-## Overview
+## Descripción General
 
-This repository contains comprehensive wiring diagrams, pin mappings, sensor calibration procedures, and a complete tuning workflow for integrating Speeduino v0.4.4 (Arduino Mega 2560) into a classic Datsun 280ZX with L28E engine management.
+Este repositorio contiene esquemas de cableado, mapeo de pines, procedimientos de calibración de sensores y un flujo de trabajo de sintonización completo para integrar Speeduino v0.4.4 (Arduino Mega 2560) en un Datsun 280ZX con gestión de motor L28E.
 
-**Target Configuration:**
-- **ECU Platform:** Speeduino v0.4.4 on Arduino Mega 2560
-- **Engine:** Nissan L28E (6-cylinder, naturally aspirated)
-- **Ignition:** Wasted spark configuration with EDIS6 coil pack
-- **Fuel System:** Sequential injection (optional; batch fire acceptable for NA)
-- **Sensor Feedback:** Wideband O2, MAP, IAT, TPS, CLT, CKP, CMP
+**Configuración Objetivo:**
+- **Plataforma ECU:** Speeduino v0.4.4 en Arduino Mega 2560
+- **Motor:** Nissan L28E (6 cilindros, naturalmente aspirado)
+- **Encendido:** Configuración de chispa desperdiciada (wasted spark) con bobina EDIS6
+- **Sistema de Combustible:** Inyección secuencial (opcional; batch fire aceptable para NA)
+- **Retroalimentación de Sensores:** O2 de banda ancha, MAP, IAT, TPS, CLT, CKP, CMP
 
-## Contents
+## Contenido
 
 ### [`SPEEDUINO_L28_PIN_REFERENCE.md`](SPEEDUINO_L28_PIN_REFERENCE.md)
-The complete technical reference covering:
+La referencia técnica completa que abarca:
 
-- **Pin Mappings** — All 48 Speeduino pins with function, control registers, and physical connections
-- **Ignition System** — Wasted spark fire pattern (1→5→3→6→2→4), EDIS6 coil pack wiring, primary/secondary circuits
-- **Fuel System** — Sequential injector timing, pump prime sequence, pressure regulation (43–45 PSI NA)
-- **Analog Sensors** — CKP (crank trigger), MAP (0–250 kPa), IAT, TPS (0.5–4.5V range), CLT, wideband O2
-- **Digital I/O** — Relay logic for fuel pump, cooling fan, check engine light
-- **Wiring Sequence** — 8-phase installation from ground star-point through bench testing and tuning
-- **Calibration Tables** — Sensor ADC ranges, TunerStudio configuration, VE table starting points
-- **Troubleshooting** — 6 common failure modes with root causes and solutions
+- **Mapeo de Pines** — Los 48 pines Speeduino con función, registros de control y conexiones físicas
+- **Sistema de Encendido** — Patrón de fuego wasted spark (1→5→3→6→2→4), cableado de bobina EDIS6, circuitos primarios/secundarios
+- **Sistema de Combustible** — Temporización de inyectores secuenciales, secuencia de priming de bomba, regulación de presión (43–45 PSI NA)
+- **Sensores Analógicos** — CKP (disparador de cigüeñal), MAP (0–250 kPa), IAT, TPS (rango 0.5–4.5V), CLT, O2 de banda ancha
+- **E/S Digital** — Lógica de relés para bomba de combustible, ventilador de radiador, luz de revisión del motor
+- **Secuencia de Cableado** — Instalación en 8 fases desde punto de tierra hasta pruebas en banco y sintonización
+- **Tablas de Calibración** — Rangos ADC de sensores, configuración TunerStudio, puntos de partida de tabla VE
+- **Solución de Problemas** — 6 modos de falla comunes con causas raíz y soluciones
 
 ### [`speeduino_l28_wiring.html`](speeduino_l28_wiring.html)
-Visual wiring reference and schematic diagrams for rapid lookup.
+Referencia de cableado visual y esquemas de diagrama para búsqueda rápida.
 
 ### [`CLAUDE.md`](CLAUDE.md)
-Development and documentation maintenance guide for future contributors.
+Guía de desarrollo y mantenimiento de documentación para futuros colaboradores.
 
-## Quick Start
+## Inicio Rápido
 
-### Prerequisites
+### Requisitos Previos
 
-- Arduino Mega 2560 with Speeduino bootloader
-- Nissan L28E engine (or similar 6-cyl. distributor-less target)
-- 36-1 toothed crank trigger wheel + Hall sensor
-- EDIS6 ignition module (or 6x smart coil packs)
-- Walbro 255 LPH fuel pump
-- 6x high-impedance fuel injectors (12Ω+)
-- Sensors: CKP, MAP, IAT, TPS, CLT (CMP optional for sequential)
-- Wideband O2 sensor + controller
-- TunerStudio software for ECU tuning
+- Arduino Mega 2560 con bootloader Speeduino
+- Motor Nissan L28E (o similar 6-cil. sin distribuidor)
+- Rueda de disparador de cigüeñal dentada 36-1 + sensor Hall
+- Módulo de encendido EDIS6 (o 6x bobinas inteligentes individuales)
+- Bomba de combustible Walbro 255 LPH
+- 6x inyectores de alta impedancia (12Ω+)
+- Sensores: CKP, MAP, IAT, TPS, CLT (CMP opcional para secuencial)
+- Sensor O2 de banda ancha + controlador
+- Software TunerStudio para sintonización de ECU
 
-### Installation Path
+### Ruta de Instalación
 
-1. **Read the wiring sequence** (Phases 1–7 in `SPEEDUINO_L28_PIN_REFERENCE.md`)
-2. **Prepare hardware** — Mount trigger wheel, install Speeduino, prepare ground star-point
-3. **Cable all systems** — Ignition, fuel, sensors in prescribed order (critical for debugging)
-4. **Verify on bench** — Multimeter check every voltage and sensor input before powering engine
-5. **Load base tune** — Use Speeduino community L28 base configuration (~30–40% VE table)
-6. **First start** — Cold crank, prime fuel, monitor TunerStudio live data
-7. **Tune for idle** — Adjust VE table ±5–10% per iteration; target lambda 1.0 with wideband
-8. **Datalog & iterate** — CSV export, VE Analyze tool, refine by RPM/MAP load cells
+1. **Lee la secuencia de cableado** (Fases 1–7 en `SPEEDUINO_L28_PIN_REFERENCE.md`)
+2. **Prepara el hardware** — Monta rueda de disparador, instala Speeduino, prepara punto de tierra
+3. **Cablea todos los sistemas** — Encendido, combustible, sensores en orden prescrito (crítico para depuración)
+4. **Verifica en banco** — Comprobación multímetro de cada voltaje e entrada de sensor antes de encender motor
+5. **Carga tune base** — Usa configuración base L28 de la comunidad Speeduino (~30–40% tabla VE)
+6. **Primer arranque** — Arranque en frío, prime combustible, monitorea datos en vivo TunerStudio
+7. **Sintoniza ralentí** — Ajusta tabla VE ±5–10% por iteración; objetivo lambda 1.0 con banda ancha
+8. **Datalog e itera** — Exporta CSV, herramienta VE Analyze, refina por celdas RPM/MAP
 
-## Critical Design Principles
+## Principios de Diseño Críticos
 
-### Ground Star-Point (Non-Negotiable)
-All sensor grounds and power returns converge at a single point on the engine block. Do not distribute ground returns—it causes sporadic misfire, trigger errors, and sensor noise.
+### Punto de Tierra Star-Point (No Negociable)
+Todas las tierras de sensores y retornos de potencia convergen en un único punto en el bloque del motor. No distribuyas retornos de tierra—causa fallos esporádicos, errores de disparador y ruido de sensor.
 
-### Signal Isolation
-- **Ignition wiring:** 16 AWG silicone, twisted pair with ground, minimum 6" separation from sensor cable
-- **CKP trigger:** Optoisolated (TLP521) to reject electrical noise from L28 block
-- **Sensor wiring:** 22 AWG shielded, capacitor 0.1µF at ECU input
+### Aislamiento de Señal
+- **Cableado de encendido:** 16 AWG silicona, par trenzado con tierra, mínimo 6" de separación del cable del sensor
+- **Disparador CKP:** Aislado ópticamente (TLP521) para rechazar ruido eléctrico del bloque L28
+- **Cableado de sensor:** 22 AWG blindado, capacitor 0.1µF en entrada ECU
 
-### Calibration Authority
-Key operational constraints (immutable without hardware change):
-| Parameter | Value | Sensor |
+### Autoridad de Calibración
+Restricciones operacionales clave (inmutables sin cambio de hardware):
+| Parámetro | Valor | Sensor |
 |-----------|-------|--------|
-| MAP range | 0–250 kPa | Freescale MPX4250 |
-| TPS range | 0.5–4.5V | 3-pin pot on throttle |
-| CKP trigger | 36-1 wheel, 2–3mm gap | Hall sensor |
-| Fuel pressure (NA) | 43–45 PSI | Regulator on Walbro 255 |
-| Ignition baseline | 5° BTDC | Safe start; optimize via log |
-| Lambda target | 1.0 stoichiometric | Wideband feedback during tune |
+| Rango MAP | 0–250 kPa | Freescale MPX4250 |
+| Rango TPS | 0.5–4.5V | Potenciómetro 3-pin en acelerador |
+| Disparador CKP | Rueda 36-1, brecha 2–3mm | Sensor Hall |
+| Presión combustible (NA) | 43–45 PSI | Regulador en Walbro 255 |
+| Línea base encendido | 5° BTDC | Arranque seguro; optimiza vía log |
+| Objetivo lambda | 1.0 estequiométrico | Retroalimentación banda ancha en sintonización |
 
-## Wiring Checklist
+## Lista de Verificación de Cableado
 
-- [ ] Ground star-point: 4 AWG from battery, motor block, chassis, sensors (all at one M8 terminal)
-- [ ] Speeduino power: 4 AWG red → 60A fuse → 5-pin relay → Vin + GND
-- [ ] Ignition (EDIS6): Pins 24, 26, 28, 30, 32, 34 → Primaries A, B, C, D, (E), (F)
-- [ ] Fuel injectors: Pins 11–13, 44–46 → Ground sides of EV6 connectors
-- [ ] Fuel pump relay: Speeduino D7 → 5-pin 12V relay → Walbro 255
-- [ ] CKP trigger: Hall sensor → Optoacoupler → Pin 20 (INT4) + 1kΩ pull-up
-- [ ] MAP sensor: Freescale MPX4250 → A1 with 0.1µF bypass
-- [ ] IAT, TPS, CLT, CMP: A2, A3, A4, A5 (A5 optional) with 0.1µF local caps
+- [ ] Punto de tierra star-point: 4 AWG desde batería, bloque motor, chasis, sensores (todos en una terminal M8)
+- [ ] Potencia Speeduino: 4 AWG rojo → fusible 60A → relé 5-pin → Vin + GND
+- [ ] Encendido (EDIS6): Pines 24, 26, 28, 30, 32, 34 → Primarias A, B, C, D, (E), (F)
+- [ ] Inyectores de combustible: Pines 11–13, 44–46 → Lados de tierra de conectores EV6
+- [ ] Relé bomba combustible: Speeduino D7 → relé 5-pin 12V → Walbro 255
+- [ ] Disparador CKP: Sensor Hall → Optoacoplador → Pin 20 (INT4) + pull-up 1kΩ
+- [ ] Sensor MAP: Freescale MPX4250 → A1 con bypass 0.1µF
+- [ ] IAT, TPS, CLT, CMP: A2, A3, A4, A5 (A5 opcional) con capacitores locales 0.1µF
 
-## Tuning Workflow
+## Flujo de Trabajo de Sintonización
 
-1. **Bench verification** (no engine running)
-   - Multimeter: +12–13V on Vin, all sensor ADCs read in range
-   - TunerStudio: CKP pin 20 blinks when crank is rotated manually
-   - Fuel pressure: 43–45 PSI at rail (key on, pump priming)
+1. **Verificación en banco** (motor sin correr)
+   - Multímetro: +12–13V en Vin, todos los ADCs de sensores dentro de rango
+   - TunerStudio: Pin 20 CKP parpadea cuando se gira cigüeñal manualmente
+   - Presión combustible: 43–45 PSI en riel (llave ON, priming de bomba)
 
-2. **Cold crank start** (engine off, 1–2 sec)
-   - Confirm spark at plugs (gap check first)
-   - Confirm fuel mist from injectors
-   - Listen for brief combustion, shut off immediately
+2. **Arranque en frío** (motor apagado, 1–2 seg)
+   - Confirma chispa en bujías (revisa brecha primero)
+   - Confirma niebla de combustible de inyectores
+   - Escucha breve combustión, apaga inmediatamente
 
-3. **Idle stabilization** (5 min ramp)
-   - 800 → 1000 → 1500 → 2000 RPM, monitor temperature rise
-   - Live adjust VE table if running rich (black smoke) or lean (roughness)
-   - Target: smooth idle, lambda 1.0 with wideband
+3. **Estabilización de ralentí** (rampa 5 min)
+   - 800 → 1000 → 1500 → 2000 RPM, monitorea aumento temperatura
+   - Ajusta vivo tabla VE si corre rico (humo negro) o pobre (aspereza)
+   - Objetivo: ralentí suave, lambda 1.0 con banda ancha
 
-4. **Datalog & iterate**
-   - Record 10–15 min of normal driving (idle, cruise, light accel)
-   - Export CSV, analyze with VE Analyze tool
-   - Adjust cells that are ±10% from stoichiometric
-   - Retest, log, refine until consistent lambda
+4. **Datalog e itera**
+   - Registra 10–15 min de conducción normal (ralentí, crucero, aceleración ligera)
+   - Exporta CSV, analiza con herramienta VE Analyze
+   - Ajusta celdas que estén ±10% de estequiométrico
+   - Retest, log, refina hasta lambda consistente
 
-## Troubleshooting
+## Solución de Problemas
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| No spark | CKP not reading, ignition polarity reversed, coil unpowered | Verify INT4 blinks; check EDIS6 +12V and primary wiring polarity |
-| Rough idle | VE table too lean; clogged injector; vacuum leak | Raise VE 10%; ultrasonic clean injectors; pressure test intake |
-| Won't start | Fuel pump not priming; low pressure; injectors not pulsing | Verify D7 relay activates; check 43 PSI; scope injector pins |
-| False wideband reading | Sensor unplugged; serial baudrate mismatch; sensor fouled | Reseat AEM UEGO; verify 9600 baud in TunerStudio; replace sensor if soot |
-| Trigger errors (multiple) | Ground loop; EMI on CKP line; trigger wheel off-balance | Verify star-point grounding; add optoacoupler if none; rebalance wheel |
+| Síntoma | Causa Raíz | Solución |
+|---------|-----------|----------|
+| Sin chispa | CKP no lee, polaridad encendido invertida, bobina sin poder | Verifica INT4 parpadea; revisa +12V EDIS6 y polaridad cableado primario |
+| Ralentí áspero | Tabla VE muy pobre; inyector obstruido; fuga vacío | Sube VE 10%; limpia inyectores ultrasónico; prueba presión admisión |
+| No arranca | Bomba no primes; presión baja; inyectores no pulsan | Verifica relé D7 activa; revisa 43 PSI; alcance pines inyector |
+| Lectura falsa banda ancha | Sensor desconectado; desajuste baudrate serial; sensor sucio | Reseat AEM UEGO; verifica 9600 baud TunerStudio; reemplaza si hollín |
+| Errores disparador (múltiples) | Lazo tierra; EMI en línea CKP; rueda disparador desequilibrada | Verifica grounding punto estrella; agrega optoacoplador si no hay; rebalancea rueda |
 
-## Community & Resources
+## Comunidad y Recursos
 
-- **Speeduino Official:** https://speeduino.com/
-- **Speeduino Forums:** https://speeduino.com/forum/
-- **Nissan L-Series Community:** Datsun Roadster/Fairlady forums (vintage car communities)
+- **Speeduino Oficial:** https://speeduino.com/
+- **Foros Speeduino:** https://speeduino.com/forum/
+- **Comunidad Nissan L-Series:** Foros Datsun Roadster/Fairlady (comunidades autos vintage)
 - **TunerStudio:** https://www.tunerstudio.com/
 
-## License
+## Licencia
 
-This documentation is provided as-is for educational and personal use. Speeduino is open-source under the GPLv3 license.
+Esta documentación se proporciona tal cual para uso educativo y personal. Speeduino es de código abierto bajo licencia GPLv3.
 
-## Contributing
+## Contribuyendo
 
-For improvements, corrections, or additional sensor configurations, please ensure:
-1. All pin assignments match Speeduino v0.4.4 ATmega2560 pinout
-2. Calibration ranges are validated with actual hardware
-3. Wiring diagrams are tested on a running engine
-4. Troubleshooting entries include symptom → root cause → solution
+Para mejoras, correcciones o configuraciones de sensores adicionales, asegúrate de:
+1. Todos los mapeos de pines coincidan con pinout ATmega2560 Speeduino v0.4.4
+2. Los rangos de calibración se validen con hardware real
+3. Los esquemas de cableado se prueben en motor en funcionamiento
+4. Las entradas de solución de problemas incluyan síntoma → causa raíz → solución
 
 ---
 
-**Last Updated:** 2026-04-19  
-**Version:** 1.0  
-**Target Hardware:** Datsun 280ZX + Speeduino v0.4.4 + L28E NA
+**Última Actualización:** 2026-04-19  
+**Versión:** 1.0  
+**Hardware Objetivo:** Datsun 280ZX + Speeduino v0.4.4 + L28E NA
